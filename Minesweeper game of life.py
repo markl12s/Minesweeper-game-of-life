@@ -2,10 +2,11 @@
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
 
-V 1.0.0
-last update: 9/11/2021
+V 1.0.1
+last update: 9/16/2021
+last change: fixed the not working on click, some small refactoring
 
-current task: set up gui
+current task: get one mine interactivity functioning
 """
 
 import turtle, random
@@ -173,29 +174,39 @@ def turn():
     return mine_location
 
 """Minesweeper"""
-window = turtle.Screen()
-window.bgcolor("black")
-window.title("Minesweeper Conways Game of life")
+def is_mine(x, y):
+    if mine_location[x][y] == 1:
+        return True
+    else:
+        return False
 
-uncovered_space = turtle.Turtle()
-uncovered_space.shape("square")
-uncovered_space.color("white")
-uncovered_space.setpos(0, 0)
-uncovered_space_covered = False
+window = turtle.Screen()
+window.bgcolor("white")
+window.title("Minesweeper Conways Game of Life")
+
+space_0 = turtle.Turtle()
+space_0.shape("square")
+space_0.color("black")
+space_0.setpos(0, 0)
+space_0_covered = True
+space_0_mine = is_mine(0, 0)
 
 #design/architecture
 
 #press uncovered space
 #on mousepress
-def mouse_pressed():
-    if uncovered_space_covered == False:
-        #if not a mine
-            #uncover space
-            #move game of life up one turn
+def click_on_space(x, y):
+    global space_0_covered, space_0_mine
+
+    if space_0_covered == True:
+        if space_0_mine == False:
+            space_0_covered = False
+            turn()
             #calculate number of nearby mines to spaces
             #show numbers
-        #if there is a mine
-            #end game
+            print(mine_location)
+        elif space_0_mine == True:
+            print('Game Over')
     else:
         pass
 
@@ -203,5 +214,6 @@ def mouse_pressed():
 print(mine_location)
 
 while True:
-    uncovered_space.onclick(mouse_pressed())
+    space_0_mine = is_mine(0, 0)
+    space_0.onclick(click_on_space)
     window.update()

@@ -2,11 +2,11 @@
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
 
-V 1.0.1
-last update: 9/16/2021
+V 1.0.2
+last update: 9/20/2021
 last change: fixed the not working on click, some small refactoring
 
-current task: get one mine interactivity functioning
+current task: design how the full board will function
 """
 
 import turtle, random
@@ -69,7 +69,6 @@ def check_cell(target_cell_x, target_cell_y):
             return 1
         else:
             return 0
-
 
 def turn_check():
     live_or_dead = []

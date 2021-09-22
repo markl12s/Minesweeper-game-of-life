@@ -9,9 +9,11 @@ last change: fixed the not working on click, some small refactoring
 current task: design how the full board will function
 """
 
-import turtle, random
+from random import *
+from turtle import Turtle, Screen
 
-mine_location = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+global MINE_LOCATION
+MINE_LOCATION = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
                  [0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
@@ -22,7 +24,8 @@ mine_location = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-mine_swap = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+global MINE_SWAP
+MINE_SWAP = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -41,13 +44,17 @@ def check_cell(target_cell_x, target_cell_y):
 
     # corners
     if target_cell_x == 0 and target_cell_y == 0:
-        live_cells_nearby = top_left_corner()
+        live_cells_nearby = sum_cell_collection( # top left corner
+            [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)])
     elif target_cell_x == -1 and target_cell_y == 0:
-        live_cells_nearby = bot_left_corner()
+        live_cells_nearby = sum_cell_collection( # bottom left corner
+            [(-2,-1), (-2,0), (-2,1), (-1,-1), (-1,1), (0,-1), (0,0), (0,1)])
     elif target_cell_x == 0 and target_cell_y == -1:
-        top_right_corner()
+        live_cells_nearby = sum_cell_collection( # top right corner
+            [(-1,0), (0,0), (1,0), (1,-1), (-1,-1), (-1,-2), (0,-2), (1,-2)])
     elif target_cell_x == -1 and target_cell_y == -1:
-        bot_right_corner()
+        live_cells_nearby = sum_cell_collection( # bottom right corner
+            [(-1,0), (0,0), (1,0), (-1,-1), (1,-1), (-1,-2), (0,-2), (1,-2)])
 
     # middle cells
     elif target_cell_x != 0 and target_cell_x != -1:
@@ -57,7 +64,7 @@ def check_cell(target_cell_x, target_cell_y):
             live_cells_nearby += add_row(target_cell_x + 1, target_cell_y)
 
     # check if cell is alive
-    if mine_location[target_cell_x][target_cell_y] == 0:
+    if MINE_LOCATION[target_cell_x][target_cell_y] == 0:
         if live_cells_nearby == 3:
             return 1
         else:
@@ -80,115 +87,30 @@ def turn_check():
 
 # checking cells nearby
 def add_row(middle_x, middle_y):
-    row = []
-
-    row.append(mine_location[(middle_x) % 10][(middle_y - 1) % 10])
-    row.append(mine_location[(middle_x) % 10][middle_y])
-    row.append(mine_location[(middle_x) % 10][(middle_y + 1) % 10])
-
-    return sum(row)
+    return sum(
+        [MINE_LOCATION[middle_x % 10][(middle_y + i) % 10] for i in [-1, 0, 1]])
 
 
 def add_sides(middle_x, middle_y):
-    row = []
+    return sum(
+        MINE_LOCATION[middle_x][middle_y - 1],
+        MINE_LOCATION[middle_x][(middle_y + 1) % 10]
+    )
 
-    row.append(mine_location[middle_x][middle_y - 1])
-    row.append(mine_location[middle_x][(middle_y + 1) % 10])
+def sum_cell_collection(locations):
+    return sum([MINE_LOCATION[x][y] for x, y in locations])
 
-    return sum(row)
-
-
-#corners
-def top_left_corner():
-    nearby_cells = []
-
-    nearby_cells.append(mine_location[-1][-1])
-    nearby_cells.append(mine_location[-1][0])
-    nearby_cells.append(mine_location[-1][1])
-
-    nearby_cells.append(mine_location[0][-1])
-    nearby_cells.append(mine_location[0][1])
-
-    nearby_cells.append(mine_location[1][-1])
-    nearby_cells.append(mine_location[1][0])
-    nearby_cells.append(mine_location[1][1])
-
-    return sum(nearby_cells)
-
-
-def bot_left_corner():
-    nearby_cells = []
-
-    nearby_cells.append(mine_location[-2][-1])
-    nearby_cells.append(mine_location[-2][0])
-    nearby_cells.append(mine_location[-2][1])
-
-    nearby_cells.append(mine_location[-1][-1])
-    nearby_cells.append(mine_location[-1][1])
-
-    nearby_cells.append(mine_location[0][-1])
-    nearby_cells.append(mine_location[0][0])
-    nearby_cells.append(mine_location[0][1])
-
-    return sum(nearby_cells)
-
-
-def top_right_corner():
-    nearby_cells = []
-
-    nearby_cells.append(mine_location[-1][0])
-    nearby_cells.append(mine_location[0][0])
-    nearby_cells.append(mine_location[1][0])
-
-    nearby_cells.append(mine_location[1][-1])
-    nearby_cells.append(mine_location[-1][-1])
-
-    nearby_cells.append(mine_location[-1][-2])
-    nearby_cells.append(mine_location[0][-2])
-    nearby_cells.append(mine_location[1][-2])
-
-    return sum(nearby_cells)
-
-
-def bot_right_corner():
-    nearby_cells = []
-
-    nearby_cells.append(mine_location[-1][0])
-    nearby_cells.append(mine_location[0][0])
-    nearby_cells.append(mine_location[1][0])
-
-    nearby_cells.append(mine_location[-1][-1])
-    nearby_cells.append(mine_location[1][-1])
-
-    nearby_cells.append(mine_location[-1][-2])
-    nearby_cells.append(mine_location[0][-2])
-    nearby_cells.append(mine_location[1][-2])
-
-    return sum(nearby_cells)
 
 def turn():
     turn_check()
-    mine_location = mine_swap
-
-    return mine_location
+    MINE_LOCATION = MINE_SWAP
 
 """Minesweeper"""
 def is_mine(x, y):
-    if mine_location[x][y] == 1:
+    if MINE_LOCATION[x][y] == 1:
         return True
     else:
         return False
-
-window = turtle.Screen()
-window.bgcolor("white")
-window.title("Minesweeper Conways Game of Life")
-
-space_0 = turtle.Turtle()
-space_0.shape("square")
-space_0.color("black")
-space_0.setpos(0, 0)
-space_0_covered = True
-space_0_mine = is_mine(0, 0)
 
 #design/architecture
 
@@ -203,16 +125,28 @@ def click_on_space(x, y):
             turn()
             #calculate number of nearby mines to spaces
             #show numbers
-            print(mine_location)
+            print(MINE_LOCATION)
         elif space_0_mine == True:
             print('Game Over')
     else:
         pass
 
 #execution
-print(mine_location)
 
-while True:
+if __name__ == "__main__":
+    window = Screen()
+    window.bgcolor("white")
+    window.title("Minesweeper Conways Game of Life")
+
+    space_0 = Turtle()
+    space_0.shape("square")
+    space_0.color("black")
+    space_0.setpos(0, 0)
+    space_0_covered = True
     space_0_mine = is_mine(0, 0)
-    space_0.onclick(click_on_space)
-    window.update()
+    print(MINE_LOCATION)
+
+    while True:
+        space_0_mine = is_mine(0, 0)
+        space_0.onclick(click_on_space)
+        window.update()

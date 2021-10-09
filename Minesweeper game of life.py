@@ -1,12 +1,12 @@
 """
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
-V 1.1.0
-last update: 9/16/2021
+V 1.1.1
+last update: 10/10/2021
 
-last change: went back a version, couldn't make the code work with the update
+last change: made the full array create itself
 
-current task: expand to a full array
+current task: make the click funtion again
 """
 
 import turtle, random
@@ -190,12 +190,9 @@ def turn():
 
 
 def is_mine(x, y):
-    if buttons_covered[y][x] == 1:
-        print('covered')
-        buttons_covered[y][x] = 1
+    if mine_location[y][x] == 1:
         return True
     else:
-        print('uncovered')
         return False
 
 
@@ -230,7 +227,8 @@ def generate_board(x = 10, y = 10):
 def clicks():
     for y in range(10):
         for x in range(10):
-            button_array[y][x].onclick(is_mine(x, y))
+            hit_mine = button_array[y][x].onclick(is_mine(x, y))
+            print(hit_mine)
 
 # execution
 print(mine_location)

@@ -1,19 +1,17 @@
 """
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
+V 1.1.0
+last update: 9/16/2021
 
-V 1.0.2
-last update: 9/20/2021
-last change: fixed the not working on click, some small refactoring
+last change: went back a version, couldn't make the code work with the update
 
-current task: design how the full board will function
+current task: expand to a full array
 """
 
-from random import *
-from turtle import Turtle, Screen
+import turtle, random
 
-global MINE_LOCATION
-MINE_LOCATION = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+mine_location = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
                  [0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
@@ -24,8 +22,7 @@ MINE_LOCATION = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-global MINE_SWAP
-MINE_SWAP = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+mine_swap = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -36,25 +33,32 @@ MINE_SWAP = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
+buttons_covered = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
 """game of life"""
 
-#functions/architecture
+# functions/architecture
 def check_cell(target_cell_x, target_cell_y):
     live_cells_nearby = 0
 
     # corners
     if target_cell_x == 0 and target_cell_y == 0:
-        live_cells_nearby = sum_cell_collection( # top left corner
-            [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)])
+        live_cells_nearby = top_left_corner()
     elif target_cell_x == -1 and target_cell_y == 0:
-        live_cells_nearby = sum_cell_collection( # bottom left corner
-            [(-2,-1), (-2,0), (-2,1), (-1,-1), (-1,1), (0,-1), (0,0), (0,1)])
+        live_cells_nearby = bot_left_corner()
     elif target_cell_x == 0 and target_cell_y == -1:
-        live_cells_nearby = sum_cell_collection( # top right corner
-            [(-1,0), (0,0), (1,0), (1,-1), (-1,-1), (-1,-2), (0,-2), (1,-2)])
+        top_right_corner()
     elif target_cell_x == -1 and target_cell_y == -1:
-        live_cells_nearby = sum_cell_collection( # bottom right corner
-            [(-1,0), (0,0), (1,0), (-1,-1), (1,-1), (-1,-2), (0,-2), (1,-2)])
+        bot_right_corner()
 
     # middle cells
     elif target_cell_x != 0 and target_cell_x != -1:
@@ -64,7 +68,7 @@ def check_cell(target_cell_x, target_cell_y):
             live_cells_nearby += add_row(target_cell_x + 1, target_cell_y)
 
     # check if cell is alive
-    if MINE_LOCATION[target_cell_x][target_cell_y] == 0:
+    if mine_location[target_cell_x][target_cell_y] == 0:
         if live_cells_nearby == 3:
             return 1
         else:
@@ -77,6 +81,7 @@ def check_cell(target_cell_x, target_cell_y):
         else:
             return 0
 
+
 def turn_check():
     live_or_dead = []
     for x in range(10):
@@ -87,66 +92,150 @@ def turn_check():
 
 # checking cells nearby
 def add_row(middle_x, middle_y):
-    return sum(
-        [MINE_LOCATION[middle_x % 10][(middle_y + i) % 10] for i in [-1, 0, 1]])
+    row = []
+
+    row.append(mine_location[(middle_x) % 10][(middle_y - 1) % 10])
+    row.append(mine_location[(middle_x) % 10][middle_y])
+    row.append(mine_location[(middle_x) % 10][(middle_y + 1) % 10])
+
+    return sum(row)
 
 
 def add_sides(middle_x, middle_y):
-    return sum(
-        MINE_LOCATION[middle_x][middle_y - 1],
-        MINE_LOCATION[middle_x][(middle_y + 1) % 10]
-    )
+    row = []
 
-def sum_cell_collection(locations):
-    return sum([MINE_LOCATION[x][y] for x, y in locations])
+    row.append(mine_location[middle_x][middle_y - 1])
+    row.append(mine_location[middle_x][(middle_y + 1) % 10])
+
+    return sum(row)
+
+
+# corners
+def top_left_corner():
+    nearby_cells = []
+
+    nearby_cells.append(mine_location[-1][-1])
+    nearby_cells.append(mine_location[-1][0])
+    nearby_cells.append(mine_location[-1][1])
+
+    nearby_cells.append(mine_location[0][-1])
+    nearby_cells.append(mine_location[0][1])
+
+    nearby_cells.append(mine_location[1][-1])
+    nearby_cells.append(mine_location[1][0])
+    nearby_cells.append(mine_location[1][1])
+
+    return sum(nearby_cells)
+
+
+def bot_left_corner():
+    nearby_cells = []
+
+    nearby_cells.append(mine_location[-2][-1])
+    nearby_cells.append(mine_location[-2][0])
+    nearby_cells.append(mine_location[-2][1])
+
+    nearby_cells.append(mine_location[-1][-1])
+    nearby_cells.append(mine_location[-1][1])
+
+    nearby_cells.append(mine_location[0][-1])
+    nearby_cells.append(mine_location[0][0])
+    nearby_cells.append(mine_location[0][1])
+
+    return sum(nearby_cells)
+
+
+def top_right_corner():
+    nearby_cells = []
+
+    nearby_cells.append(mine_location[-1][0])
+    nearby_cells.append(mine_location[0][0])
+    nearby_cells.append(mine_location[1][0])
+
+    nearby_cells.append(mine_location[1][-1])
+    nearby_cells.append(mine_location[-1][-1])
+
+    nearby_cells.append(mine_location[-1][-2])
+    nearby_cells.append(mine_location[0][-2])
+    nearby_cells.append(mine_location[1][-2])
+
+    return sum(nearby_cells)
+
+
+def bot_right_corner():
+    nearby_cells = []
+
+    nearby_cells.append(mine_location[-1][0])
+    nearby_cells.append(mine_location[0][0])
+    nearby_cells.append(mine_location[1][0])
+
+    nearby_cells.append(mine_location[-1][-1])
+    nearby_cells.append(mine_location[1][-1])
+
+    nearby_cells.append(mine_location[-1][-2])
+    nearby_cells.append(mine_location[0][-2])
+    nearby_cells.append(mine_location[1][-2])
+
+    return sum(nearby_cells)
 
 
 def turn():
     turn_check()
-    MINE_LOCATION = MINE_SWAP
+    mine_location = mine_swap
+
+    return mine_location
+
 
 """Minesweeper"""
+
+
 def is_mine(x, y):
-    if MINE_LOCATION[x][y] == 1:
+    if buttons_covered[y][x] == 1:
+        print('covered')
+        buttons_covered[y][x] = 1
         return True
     else:
+        print('uncovered')
         return False
 
-#design/architecture
 
-#press uncovered space
-#on mousepress
-def click_on_space(x, y):
-    global space_0_covered, space_0_mine
+window = turtle.Screen()
+window.bgcolor("white")
+window.title("Minesweeper Conways Game of Life")
 
-    if space_0_covered == True:
-        if space_0_mine == False:
-            space_0_covered = False
-            turn()
-            #calculate number of nearby mines to spaces
-            #show numbers
-            print(MINE_LOCATION)
-        elif space_0_mine == True:
-            print('Game Over')
-    else:
-        pass
+def generate_board(x = 10, y = 10):
+    button_array = []
 
-#execution
+    for y_cor in range(y):
+        button_array.append([])
 
-if __name__ == "__main__":
-    window = Screen()
-    window.bgcolor("white")
-    window.title("Minesweeper Conways Game of Life")
+        for x_cor in range(x):
+            button_array[y_cor].append(turtle.Turtle())
+            button_array[y_cor][x_cor].shape("square")
+            button_array[y_cor][x_cor].color("black")
+            button_array[y_cor][x_cor].penup()
+            button_array[y_cor][x_cor].speed(0)
+            button_array[y_cor][x_cor].setpos(x_cor * 25, y_cor * -25)
+            #move the buttons around
 
-    space_0 = Turtle()
-    space_0.shape("square")
-    space_0.color("black")
-    space_0.setpos(0, 0)
-    space_0_covered = True
-    space_0_mine = is_mine(0, 0)
-    print(MINE_LOCATION)
+            #button_covered[x_cor][y_cor] = True
+            #button_mine[x_cor][y_cor] = is_mine(x, y)
 
-    while True:
-        space_0_mine = is_mine(0, 0)
-        space_0.onclick(click_on_space)
-        window.update()
+    return button_array
+
+# design/architecture
+
+# press uncovered space
+# on mousepress
+def clicks():
+    for y in range(10):
+        for x in range(10):
+            button_array[y][x].onclick(is_mine(x, y))
+
+# execution
+print(mine_location)
+button_array = generate_board()
+
+while True:
+    clicks()
+    window.update()

@@ -1,18 +1,20 @@
 """
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
-V 1.1.1
+V 1.1.2
 last update: 10/10/2021
 
-last change: made the full array create itself
+last change: can succesfully function for spot 0, 0
 
-current task: make the click funtion again
+other tasks: make it figure out which button you pressed algorithmically
+
+current task: find the mouse location
 """
-
+import socket
 import turtle, random
 
-mine_location = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+mine_location = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
                  [0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
                  [0, 1, 0, 0, 1, 0, 1, 0, 0, 1],
@@ -190,6 +192,8 @@ def turn():
 
 
 def is_mine(x, y):
+    x, y = int(x), int(y)
+
     if mine_location[y][x] == 1:
         return True
     else:
@@ -200,7 +204,7 @@ window = turtle.Screen()
 window.bgcolor("white")
 window.title("Minesweeper Conways Game of Life")
 
-def generate_board(x = 10, y = 10):
+def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] because of how arrays are generated
     button_array = []
 
     for y_cor in range(y):
@@ -215,25 +219,66 @@ def generate_board(x = 10, y = 10):
             button_array[y_cor][x_cor].setpos(x_cor * 25, y_cor * -25)
             #move the buttons around
 
-            #button_covered[x_cor][y_cor] = True
-            #button_mine[x_cor][y_cor] = is_mine(x, y)
+            #button_covered[y_cor][x_cor] = True
+            #button_mine[y_cor][x_cor] = is_mine(x, y)
 
     return button_array
 
 # design/architecture
 
 # press uncovered space
+#find which button it's covering
+def find_coords():
+    mouse_location = turtle.Turtle()
+    mouse_location.penup()
+    mouse_location.hideturtle()
+    mouse_location.speed(0)
+    mouse_location.listen()
+
+    mouse_location.onclick(find_mouse)
+
+    mouse_x, mouse_y = mouse_location.xcor(), mouse_location.ycor()
+
+    x_cor = mouse_x * 25
+    y_cor = mouse_y * -25
+
+    print('(', mouse_x, ',', mouse_y, ')')
+
+    return mouse_x, mouse_y
+
+def find_mouse(x, y):
+    mouse_location.setheading(mouse_location.towards(x, y))
+    mouse_location.goto(x, y)
+
 # on mousepress
-def clicks():
+def clicks(x_cor, y_cor):
     for y in range(10):
         for x in range(10):
-            hit_mine = button_array[y][x].onclick(is_mine(x, y))
-            print(hit_mine)
+            mine_location = turn()
+
+    print(mine_location)
+    hit_mine = is_mine(x_cor, y_cor)
+    print(hit_mine)
+    print('Test Passed')
+    return hit_mine, mine_location
+
 
 # execution
 print(mine_location)
 button_array = generate_board()
 
 while True:
-    clicks()
-    window.update()
+    find_coords()
+    click_action = button_array[0][0].onclick(clicks)
+
+    try:
+        hit_mine = click_action[0]
+        mine_location = click_action[1]
+
+        if hit_mine == True:
+            print('Game Lost')
+
+    except:
+        pass
+    finally:
+        window.update()

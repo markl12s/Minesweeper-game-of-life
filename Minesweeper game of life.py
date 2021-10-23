@@ -1,16 +1,20 @@
 """
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
-V 1.1.2
-last update: 10/10/2021
+V 1.1.3
+last update: 10/17/2021
 
 last change: can succesfully function for spot 0, 0
 
 other tasks: make it figure out which button you pressed algorithmically
 
 current task: find the mouse location
+
+current known bugs: the button is treated as if pressed, immediately on execution
+the try and except isn't functioning
+also dosent do the right thing on the button press
 """
-import socket
+
 import turtle, random
 
 mine_location = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -90,6 +94,12 @@ def turn_check():
         for y in range(10):
             dead_or_alive = check_cell(x, y)
             mine_swap[x][y] = dead_or_alive
+
+def turn():
+    turn_check()
+    mine_location = mine_swap
+
+    return mine_location
 
 
 # checking cells nearby
@@ -181,16 +191,18 @@ def bot_right_corner():
     return sum(nearby_cells)
 
 
-def turn():
-    turn_check()
-    mine_location = mine_swap
-
-    return mine_location
-
-
 """Minesweeper"""
+mouse_location = turtle.Turtle()
+mouse_location.penup()
+mouse_location.hideturtle()
+mouse_location.speed(0)
+
+window = turtle.Screen()
+window.bgcolor("white")
+window.title("Minesweeper Conways Game of Life")
 
 
+# design/architecture
 def is_mine(x, y):
     x, y = int(x), int(y)
 
@@ -198,11 +210,6 @@ def is_mine(x, y):
         return True
     else:
         return False
-
-
-window = turtle.Screen()
-window.bgcolor("white")
-window.title("Minesweeper Conways Game of Life")
 
 def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] because of how arrays are generated
     button_array = []
@@ -224,31 +231,37 @@ def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] 
 
     return button_array
 
-# design/architecture
 
 # press uncovered space
 #find which button it's covering
-def find_coords():
-    mouse_location = turtle.Turtle()
-    mouse_location.penup()
-    mouse_location.hideturtle()
-    mouse_location.speed(0)
-    mouse_location.listen()
+def find_coords(a, b):
+    print('test 1 passed')
+    try:
+        print('test 2 passed')
 
-    mouse_location.onclick(find_mouse)
+        print('hello world')
+        mouse_x, mouse_y = mouse_location.onclick(find_mouse) #this line dosent function
+
+        print('(', mouse_x, ',', mouse_y, ')')
+
+        return mouse_x, mouse_y
+
+    except:
+        print('test 2 failed')
+        pass
+    finally:
+        pass
+
+def find_mouse(x, y):
+    print('test 3 passed')
+
+    mouse_location.setheading(mouse_location.towards(x, y))
+    mouse_location.goto(x, y)
 
     mouse_x, mouse_y = mouse_location.xcor(), mouse_location.ycor()
 
-    x_cor = mouse_x * 25
-    y_cor = mouse_y * -25
-
-    print('(', mouse_x, ',', mouse_y, ')')
-
     return mouse_x, mouse_y
 
-def find_mouse(x, y):
-    mouse_location.setheading(mouse_location.towards(x, y))
-    mouse_location.goto(x, y)
 
 # on mousepress
 def clicks(x_cor, y_cor):
@@ -257,9 +270,11 @@ def clicks(x_cor, y_cor):
             mine_location = turn()
 
     print(mine_location)
+
     hit_mine = is_mine(x_cor, y_cor)
     print(hit_mine)
-    print('Test Passed')
+
+    #print('Test Passed')
     return hit_mine, mine_location
 
 
@@ -267,18 +282,31 @@ def clicks(x_cor, y_cor):
 print(mine_location)
 button_array = generate_board()
 
+mouse_screen_location = 0
+last_mouse_location = mouse_screen_location
+
 while True:
-    find_coords()
+
+    mouse_screen_location = window.onscreenclick(find_coords)
     click_action = button_array[0][0].onclick(clicks)
 
-    try:
-        hit_mine = click_action[0]
-        mine_location = click_action[1]
+    #make it so it only goes through this when click on something
+    #currently just runs on execution of code, and dosent on mousepress
+    if mouse_screen_location != last_mouse_location:
+        print('inside if')
 
-        if hit_mine == True:
-            print('Game Lost')
+        #just make the code work
+        print('in if test passed 1')
 
-    except:
-        pass
-    finally:
+        #check which mine you are over
+        #press button
+
+        #if hit_mine == True:
+            #print('Game Lost')
+
+        print('in if test passed 2')
+
         window.update()
+        print('outside if')
+
+    last_mouse_location = mouse_screen_location

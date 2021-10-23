@@ -2,13 +2,13 @@
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
 V 1.2.0
-last update: 10/17/2021
+last update: 10/23/2021
 
-last change: can succesfully function for spot 0, 0
+last change: began rewriting the minesweeper code
 
 other tasks:
 
-current task: redesign minesweeper
+current task: check mouse location
 
 current known bugs:
 """
@@ -190,11 +190,6 @@ def bot_right_corner():
 
 
 """Minesweeper"""
-mouse_location = turtle.Turtle()
-mouse_location.penup()
-mouse_location.hideturtle()
-mouse_location.speed(0)
-
 window = turtle.Screen()
 window.bgcolor("white")
 window.title("Minesweeper Conways Game of Life")
@@ -211,9 +206,11 @@ def is_mine(x, y):
 
 def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] because of how arrays are generated
     button_array = []
+    hitboxes= []
 
     for y_cor in range(y):
         button_array.append([])
+        hitboxes.append([])
 
         for x_cor in range(x):
             button_array[y_cor].append(turtle.Turtle())
@@ -222,15 +219,21 @@ def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] 
             button_array[y_cor][x_cor].penup()
             button_array[y_cor][x_cor].speed(0)
             button_array[y_cor][x_cor].setpos(x_cor * 25, y_cor * -25)
-            #move the buttons around
 
-            #button_covered[y_cor][x_cor] = True
-            #button_mine[y_cor][x_cor] = is_mine(x, y)
+            hitboxes[y_cor].append([button_array[y_cor][x_cor].xcor() + 25, button_array[y_cor][x_cor].xcor() - 25,
+                                    button_array[y_cor][x_cor].ycor() + 25, button_array[y_cor][x_cor].ycor() - 25])
 
-    return button_array
+    return hitboxes
+
+def check_mouse_coords():
+    print('hello')
+
+    return mouse_x, mouse_y
 
 #generate board
-generate_board()
+hitboxes = generate_board()
+print(hitboxes)
+#mouse_x, mouse_y = check_mouse_coords()
 
 while True:
     window.update()

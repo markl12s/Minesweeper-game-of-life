@@ -10,7 +10,8 @@ other tasks:
 
 current task: check mouse location
 
-current known bugs:
+current known bugs: calls the window.onclick instead of the check_mouse_coords
+figure out how to get it to only call the check_mouse_coords on mouse press
 """
 
 import turtle, random
@@ -194,7 +195,6 @@ window = turtle.Screen()
 window.bgcolor("white")
 window.title("Minesweeper Conways Game of Life")
 
-
 # design/architecture
 def is_mine(x, y):
     x, y = int(x), int(y)
@@ -206,7 +206,7 @@ def is_mine(x, y):
 
 def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] because of how arrays are generated
     button_array = []
-    hitboxes= []
+    hitboxes = []
 
     for y_cor in range(y):
         button_array.append([])
@@ -220,21 +220,20 @@ def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] 
             button_array[y_cor][x_cor].speed(0)
             button_array[y_cor][x_cor].setpos(x_cor * 25, y_cor * -25)
 
-            hitbox_size = 12.5
+            hitbox_size = 12
             hitboxes[y_cor].append([button_array[y_cor][x_cor].xcor() + hitbox_size, button_array[y_cor][x_cor].xcor() - hitbox_size,
                                     button_array[y_cor][x_cor].ycor() + hitbox_size, button_array[y_cor][x_cor].ycor() - hitbox_size])
 
     return hitboxes
 
-def check_mouse_coords():
-    print('hello')
-
-    return mouse_x, mouse_y
+def check_mouse_coords(x, y):
+    return x, y
 
 #generate board
 hitboxes = generate_board()
 print(hitboxes)
-#mouse_x, mouse_y = check_mouse_coords()
+
+mouse_x, mouse_y = window.onclick(check_mouse_coords)
 
 while True:
     window.update()

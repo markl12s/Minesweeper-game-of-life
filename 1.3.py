@@ -206,11 +206,12 @@ class board:
     #objects
     Button = turtle.Turtle
 
-    #check for press
-
     #methods
-    def button_press(self):
+    def button_press_action(self):
         print('button pressed')
+
+    #check for press
+    clicked = Button.onclick(self, button_press_action)
 
 
 #game functionality

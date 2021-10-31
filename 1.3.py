@@ -2,7 +2,7 @@
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
 V 1.3.0
-last update: 10/29/2021
+last update: 10/30/2021
 
 last change: began rewriting board as a class
 
@@ -210,8 +210,7 @@ class board:
     def button_press_action(self):
         print('button pressed')
 
-    #check for press
-    clicked = Button.onclick(self, button_press_action)
+    #clicked = Button.onclick(self, button_press_action)
 
 
 #game functionality
@@ -231,12 +230,16 @@ def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] 
             button_array[y_cor][x_cor].speed(0)
             button_array[y_cor][x_cor].setpos(x_cor * 25, y_cor * -25)
 
-            #I don't think hitboxes are needed, but im keeping them here just incase, will delete later
+            #I don't think hitboxes are needed, but im keeping them here just incase, will delete later if unused
             hitbox_size = 12
             hitboxes[y_cor].append([button_array[y_cor][x_cor].xcor() + hitbox_size, button_array[y_cor][x_cor].xcor() - hitbox_size,
                                     button_array[y_cor][x_cor].ycor() + hitbox_size, button_array[y_cor][x_cor].ycor() - hitbox_size])
 
     return hitboxes
+
+def get_mouse_click_coor(x, y):
+    turtle.onscreenclick(None)
+    print(x, y)
 
 #open screen
 window = turtle.Screen()
@@ -248,4 +251,5 @@ hitboxes = generate_board()
 #print(hitboxes)
 
 while True:
+    turtle.onscreenclick(get_mouse_click_coor)
     window.update()

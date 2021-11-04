@@ -1,10 +1,11 @@
 """
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
-V 1.3.1
-last update: 11/1/2021
+V 1.3.2
+last update: 11/3/2021
 
-last change: buttons are fully working, just need to get everything else working
+last change: some minor refactoring, hoping that if I refactor it the bug will just "jump out"
+so I can find it
 
 other tasks: need to refactor as soon as first prototype is functional
 
@@ -206,16 +207,6 @@ def is_mine(x, y):
     else:
         return False
 
-#board class
-class board:
-    import turtle
-
-    #objects
-    Button = turtle.Turtle
-
-    #clicked = Button.onclick(self, button_press_action)
-
-
 #game functionality
 def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] because of how the arrays are generated
     button_array = []
@@ -226,19 +217,14 @@ def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] 
         hitboxes.append([])
 
         for x_cor in range(x):
-            button_array[y_cor].append(board.Button())
+            button_array[y_cor].append(turtle.Turtle())
             button_array[y_cor][x_cor].shape("square")
             button_array[y_cor][x_cor].color("black")
             button_array[y_cor][x_cor].penup()
             button_array[y_cor][x_cor].speed(0)
             button_array[y_cor][x_cor].setpos(x_cor * 25, y_cor * -25)
 
-            #I don't think hitboxes are needed, but im keeping them here just incase, will delete later if unused
-            hitbox_size = 12
-            hitboxes[y_cor].append([button_array[y_cor][x_cor].xcor() + hitbox_size, button_array[y_cor][x_cor].xcor() - hitbox_size,
-                                    button_array[y_cor][x_cor].ycor() + hitbox_size, button_array[y_cor][x_cor].ycor() - hitbox_size])
-
-    return hitboxes, button_array
+    return button_array
 
 MOUSE_X, MOUSE_Y = 0, 0
 def get_mouse_click_coor(x, y):
@@ -257,25 +243,20 @@ def check_mouse_click(MOUSE_X, MOUSE_Y, last_mouse_x, last_mouse_y):
     return True
 
 def numbers(live_cells_nearby):
-    if live_cells_nearby == 0:
-        return 'white'
+    set_number = {
+        0: 'white',
 
-    elif live_cells_nearby == 1:
-        return 'blue'
-    elif live_cells_nearby == 2:
-        return 'green'
-    elif live_cells_nearby == 3:
-        return 'red'
-    elif live_cells_nearby == 4:
-        return 'purple'
-    elif live_cells_nearby == 5:
-        return 'brown'
-    elif live_cells_nearby == 6:
-        return 'light blue'
-    elif live_cells_nearby == 7:
-        return 'black'
-    elif live_cells_nearby == 8:
-        return 'grey'
+        1: 'blue',
+        2: 'green',
+        3: 'red',
+        4: 'purple',
+        5: 'brown',
+        6: 'light blue',
+        7: 'black',
+        8: 'grey',
+    }
+
+    return set_number.get(live_cells_nearby)
 
 def nearby_mines():
     nearby_mines_array = []
@@ -293,6 +274,8 @@ def button_press_action(button_clicked_x, button_clicked_y):
     pressed_mine = is_mine(button_clicked_x, button_clicked_y)
     turn()
 
+    return pressed_mine
+
 #open screen
 window = turtle.Screen()
 window.bgcolor("white")
@@ -300,7 +283,7 @@ window.title("Minesweeper Conways Game of Life")
 
 #generate board
 last_mouse_x, last_mouse_y = 0, 0
-hitboxes, button_array = generate_board()
+button_array = generate_board()
 
 while True:
     turtle.onscreenclick(get_mouse_click_coor)
@@ -312,9 +295,8 @@ while True:
         if buttons_covered[button_clicked_y][button_clicked_x] == 1:
             buttons_covered[button_clicked_y][button_clicked_x] = 0
 
-            button_press_action(button_clicked_x, button_clicked_y)
-
             button_array[button_clicked_y][button_clicked_x].color('green')
+            button_press_action(button_clicked_x, button_clicked_y)
 
     last_mouse_x, last_mouse_y = MOUSE_X, MOUSE_Y
     window.update()

@@ -242,8 +242,12 @@ def check_mouse_click(MOUSE_X, MOUSE_Y, last_mouse_x, last_mouse_y):
         return True
     return True
 
+#String[] numbers_array = {"white", "blue", "green", "red", "purple", "brown", "light blue", "black", "grey"};
+#String color = number_array[live_cells_nearby]
+
 def numbers(live_cells_nearby):
     set_number = {
+      numbers = []
         0: 'white',
 
         1: 'blue',

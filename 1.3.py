@@ -2,16 +2,16 @@
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
 V 1.3.2
-last update: 11/3/2021
+last update: 11/11/2021
 
 last change: some minor refactoring, hoping that if I refactor it the bug will just "jump out"
 so I can find it
 
 other tasks: need to refactor as soon as first prototype is functional
 
-current task: make it so the numbers can function
+current task: make it so the numbers can function, can't find the cause of the bug
 
-current known bugs:
+current known bugs: doesn't replace the numbers with the correct numbers
 """
 
 import turtle
@@ -49,6 +49,28 @@ buttons_covered = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+
+number_array = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
+final_board = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
 """game of life"""
 
@@ -92,19 +114,28 @@ def cell_dead_or_alive(live_cells_nearby, target_cell_x, target_cell_y):
 
 
 def turn_check():
-    live_or_dead = []
     for x in range(10):
         for y in range(10):
             live_cells_nearby = check_cell(x, y)
             dead_or_alive = cell_dead_or_alive(live_cells_nearby, x, y)
             mine_swap[x][y] = dead_or_alive
 
+    return mine_swap
+
 def turn():
-    turn_check()
+    final_board = []
+    mine_swap = turn_check()
     nearby_mines()
     mine_location = mine_swap
+    final_board = change_color()
 
-    return mine_location
+    for x in range(10):
+        final_board.append([])
+        for y in range(10):
+            if buttons_covered[y][x] == 0:
+                final_board.append(str(number_array[y][x]))
+
+    return mine_location, final_board
 
 
 # checking cells nearby
@@ -131,16 +162,16 @@ def add_sides(middle_x, middle_y):
 def top_left_corner():
     nearby_cells = []
 
-    nearby_cells.append(mine_location[-1][-1])
-    nearby_cells.append(mine_location[-1][0])
-    nearby_cells.append(mine_location[-1][1])
+    nearby_cells.append(int(mine_location[-1][-1]))
+    nearby_cells.append(int(mine_location[-1][0]))
+    nearby_cells.append(int(mine_location[-1][1]))
 
-    nearby_cells.append(mine_location[0][-1])
-    nearby_cells.append(mine_location[0][1])
+    nearby_cells.append(int(mine_location[0][-1]))
+    nearby_cells.append(int(mine_location[0][1]))
 
-    nearby_cells.append(mine_location[1][-1])
-    nearby_cells.append(mine_location[1][0])
-    nearby_cells.append(mine_location[1][1])
+    nearby_cells.append(int(mine_location[1][-1]))
+    nearby_cells.append(int(mine_location[1][0]))
+    nearby_cells.append(int(mine_location[1][1]))
 
     return sum(nearby_cells)
 
@@ -148,16 +179,16 @@ def top_left_corner():
 def bot_left_corner():
     nearby_cells = []
 
-    nearby_cells.append(mine_location[-2][-1])
-    nearby_cells.append(mine_location[-2][0])
-    nearby_cells.append(mine_location[-2][1])
+    nearby_cells.append(int(mine_location[-2][-1]))
+    nearby_cells.append(int(mine_location[-2][0]))
+    nearby_cells.append(int(mine_location[-2][1]))
 
-    nearby_cells.append(mine_location[-1][-1])
-    nearby_cells.append(mine_location[-1][1])
+    nearby_cells.append(int(mine_location[-1][-1]))
+    nearby_cells.append(int(mine_location[-1][1]))
 
-    nearby_cells.append(mine_location[0][-1])
-    nearby_cells.append(mine_location[0][0])
-    nearby_cells.append(mine_location[0][1])
+    nearby_cells.append(int(mine_location[0][-1]))
+    nearby_cells.append(int(mine_location[0][0]))
+    nearby_cells.append(int(mine_location[0][1]))
 
     return sum(nearby_cells)
 
@@ -165,16 +196,16 @@ def bot_left_corner():
 def top_right_corner():
     nearby_cells = []
 
-    nearby_cells.append(mine_location[-1][0])
-    nearby_cells.append(mine_location[0][0])
-    nearby_cells.append(mine_location[1][0])
+    nearby_cells.append(int(mine_location[-1][0]))
+    nearby_cells.append(int(mine_location[0][0]))
+    nearby_cells.append(int(mine_location[1][0]))
 
-    nearby_cells.append(mine_location[1][-1])
-    nearby_cells.append(mine_location[-1][-1])
+    nearby_cells.append(int(mine_location[1][-1]))
+    nearby_cells.append(int(mine_location[-1][-1]))
 
-    nearby_cells.append(mine_location[-1][-2])
-    nearby_cells.append(mine_location[0][-2])
-    nearby_cells.append(mine_location[1][-2])
+    nearby_cells.append(int(mine_location[-1][-2]))
+    nearby_cells.append(int(mine_location[0][-2]))
+    nearby_cells.append(int(mine_location[1][-2]))
 
     return sum(nearby_cells)
 
@@ -182,16 +213,16 @@ def top_right_corner():
 def bot_right_corner():
     nearby_cells = []
 
-    nearby_cells.append(mine_location[-1][0])
-    nearby_cells.append(mine_location[0][0])
-    nearby_cells.append(mine_location[1][0])
+    nearby_cells.append(int(mine_location[-1][0]))
+    nearby_cells.append(int(mine_location[0][0]))
+    nearby_cells.append(int(mine_location[1][0]))
 
-    nearby_cells.append(mine_location[-1][-1])
-    nearby_cells.append(mine_location[1][-1])
+    nearby_cells.append(int(mine_location[-1][-1]))
+    nearby_cells.append(int(mine_location[1][-1]))
 
-    nearby_cells.append(mine_location[-1][-2])
-    nearby_cells.append(mine_location[0][-2])
-    nearby_cells.append(mine_location[1][-2])
+    nearby_cells.append(int(mine_location[-1][-2]))
+    nearby_cells.append(int(mine_location[0][-2]))
+    nearby_cells.append(int(mine_location[1][-2]))
 
     return sum(nearby_cells)
 
@@ -242,12 +273,8 @@ def check_mouse_click(MOUSE_X, MOUSE_Y, last_mouse_x, last_mouse_y):
         return True
     return True
 
-#String[] numbers_array = {"white", "blue", "green", "red", "purple", "brown", "light blue", "black", "grey"};
-#String color = number_array[live_cells_nearby]
-
 def numbers(live_cells_nearby):
     set_number = {
-      numbers = []
         0: 'white',
 
         1: 'blue',
@@ -263,15 +290,16 @@ def numbers(live_cells_nearby):
     return set_number.get(live_cells_nearby)
 
 def nearby_mines():
-    nearby_mines_array = []
     for x in range(10):
         for y in range(10):
             live_cells_nearby = check_cell(x, y)
             color = numbers(live_cells_nearby)
-            mine_swap[y][x] = color
+            final_board[y][x] = color
 
             if buttons_covered[y][x] == 0:
-                button_array[y][x].color(mine_swap[y][x])
+                button_array[y][x].color(final_board[y][x])
+
+    return button_array
 
 
 def button_press_action(button_clicked_x, button_clicked_y):
@@ -279,6 +307,21 @@ def button_press_action(button_clicked_x, button_clicked_y):
     turn()
 
     return pressed_mine
+
+def change_color():
+    global final_board
+
+    for y in range(10):
+        for x in range(10):
+            if buttons_covered[y][x] == 0:
+                live_cells_nearby = check_cell(x, y)
+                number = numbers(live_cells_nearby)
+
+                final_board[y][x] = number
+            else:
+                final_board[y][x] = 0
+
+    return final_board
 
 #open screen
 window = turtle.Screen()
@@ -301,6 +344,15 @@ while True:
 
             button_array[button_clicked_y][button_clicked_x].color('green')
             button_press_action(button_clicked_x, button_clicked_y)
+
+            mine_location, final_board = turn()
+
+            for x in range(10):
+                for y in range(10):
+                    if button_array[y][x] == 0:
+                        button_array[y][x].color(final_board[y][x])
+                    else:
+                        pass
 
     last_mouse_x, last_mouse_y = MOUSE_X, MOUSE_Y
     window.update()

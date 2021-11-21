@@ -2,16 +2,15 @@
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
 V 1.3.2
-last update: 11/11/2021
+last update: 11/21/2021
 
-last change: some minor refactoring, hoping that if I refactor it the bug will just "jump out"
-so I can find it
+last change: fixed bug, began refactoring
 
-other tasks: need to refactor as soon as first prototype is functional
+other tasks: refactor
 
-current task: make it so the numbers can function, can't find the cause of the bug
+current task: refactor
 
-current known bugs: doesn't replace the numbers with the correct numbers
+current known bugs:
 """
 
 import turtle
@@ -72,9 +71,38 @@ final_board = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-"""game of life"""
 
-# functions/architecture
+def turn():
+    final_board = []
+    mine_swap = turn_check()
+    nearby_mines()
+    mine_location = mine_swap
+    final_board = change_number()
+
+    for x in range(10):
+        final_board.append([])
+        for y in range(10):
+            if buttons_covered[y][x] == 0:
+                final_board.append(str(number_array[y][x]))
+
+    return mine_location, final_board
+
+
+"""
+-----------------------------------------------------------------------------------------------------------------------
+turn check
+-----------------------------------------------------------------------------------------------------------------------
+"""
+def turn_check():
+    for x in range(10):
+        for y in range(10):
+            live_cells_nearby = check_cell(x, y)
+            dead_or_alive = cell_dead_or_alive(live_cells_nearby, x, y)
+            mine_swap[x][y] = dead_or_alive
+
+    return mine_swap
+
+#count number nearby mines
 def check_cell(target_cell_x, target_cell_y):
     live_cells_nearby = 0
 
@@ -97,48 +125,7 @@ def check_cell(target_cell_x, target_cell_y):
 
     return live_cells_nearby
 
-    # check if cell is alive
-def cell_dead_or_alive(live_cells_nearby, target_cell_x, target_cell_y):
-    if mine_location[target_cell_x][target_cell_y] == 0:
-        if live_cells_nearby == 3:
-            return 1
-        else:
-            return 0
-    else:
-        if live_cells_nearby == 2:
-            return 1
-        elif live_cells_nearby == 3:
-            return 1
-        else:
-            return 0
-
-
-def turn_check():
-    for x in range(10):
-        for y in range(10):
-            live_cells_nearby = check_cell(x, y)
-            dead_or_alive = cell_dead_or_alive(live_cells_nearby, x, y)
-            mine_swap[x][y] = dead_or_alive
-
-    return mine_swap
-
-def turn():
-    final_board = []
-    mine_swap = turn_check()
-    nearby_mines()
-    mine_location = mine_swap
-    final_board = change_color()
-
-    for x in range(10):
-        final_board.append([])
-        for y in range(10):
-            if buttons_covered[y][x] == 0:
-                final_board.append(str(number_array[y][x]))
-
-    return mine_location, final_board
-
-
-# checking cells nearby
+#find mines nearby
 def add_row(middle_x, middle_y):
     row = []
 
@@ -148,7 +135,6 @@ def add_row(middle_x, middle_y):
 
     return sum(row)
 
-
 def add_sides(middle_x, middle_y):
     row = []
 
@@ -156,7 +142,6 @@ def add_sides(middle_x, middle_y):
     row.append(mine_location[middle_x][(middle_y + 1) % 10])
 
     return sum(row)
-
 
 # corners
 def top_left_corner():
@@ -175,7 +160,6 @@ def top_left_corner():
 
     return sum(nearby_cells)
 
-
 def bot_left_corner():
     nearby_cells = []
 
@@ -191,7 +175,6 @@ def bot_left_corner():
     nearby_cells.append(int(mine_location[0][1]))
 
     return sum(nearby_cells)
-
 
 def top_right_corner():
     nearby_cells = []
@@ -227,52 +210,24 @@ def bot_right_corner():
     return sum(nearby_cells)
 
 
-"""Minesweeper"""
-# design/architecture
-def is_mine(x, y):
-    x, y = int(x), int(y)
+"""
+-----------------------------------------------------------------------------------------------------------------------
+nearby mines
+-----------------------------------------------------------------------------------------------------------------------
+"""
+def nearby_mines():
+    for x in range(10):
+        for y in range(10):
+            live_cells_nearby = check_cell(x, y)
+            color = numbers(live_cells_nearby)
+            final_board[y][x] = color
 
-    if mine_location[y][x] == 1:
-        print('is mine')
-        return True
-    else:
-        return False
-
-#game functionality
-def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] because of how the arrays are generated
-    button_array = []
-    hitboxes = []
-
-    for y_cor in range(y):
-        button_array.append([])
-        hitboxes.append([])
-
-        for x_cor in range(x):
-            button_array[y_cor].append(turtle.Turtle())
-            button_array[y_cor][x_cor].shape("square")
-            button_array[y_cor][x_cor].color("black")
-            button_array[y_cor][x_cor].penup()
-            button_array[y_cor][x_cor].speed(0)
-            button_array[y_cor][x_cor].setpos(x_cor * 25, y_cor * -25)
+            if buttons_covered[y][x] == 0:
+                button_array[y][x].color(final_board[y][x])
 
     return button_array
 
-MOUSE_X, MOUSE_Y = 0, 0
-def get_mouse_click_coor(x, y):
-    global MOUSE_X, MOUSE_Y
-
-    turtle.onscreenclick(None)
-    MOUSE_X, MOUSE_Y = x, y
-    return x, y
-
-def check_mouse_click(MOUSE_X, MOUSE_Y, last_mouse_x, last_mouse_y):
-    if MOUSE_X == last_mouse_x:
-        if MOUSE_Y == last_mouse_y:
-            return False
-
-        return True
-    return True
-
+#set picture for empty spaces
 def numbers(live_cells_nearby):
     set_number = {
         0: 'white',
@@ -289,26 +244,7 @@ def numbers(live_cells_nearby):
 
     return set_number.get(live_cells_nearby)
 
-def nearby_mines():
-    for x in range(10):
-        for y in range(10):
-            live_cells_nearby = check_cell(x, y)
-            color = numbers(live_cells_nearby)
-            final_board[y][x] = color
-
-            if buttons_covered[y][x] == 0:
-                button_array[y][x].color(final_board[y][x])
-
-    return button_array
-
-
-def button_press_action(button_clicked_x, button_clicked_y):
-    pressed_mine = is_mine(button_clicked_x, button_clicked_y)
-    turn()
-
-    return pressed_mine
-
-def change_color():
+def change_number():
     global final_board
 
     for y in range(10):
@@ -323,6 +259,88 @@ def change_color():
 
     return final_board
 
+
+"""
+-----------------------------------------------------------------------------------------------------------------------
+mouse click
+-----------------------------------------------------------------------------------------------------------------------
+"""
+MOUSE_X, MOUSE_Y = 0, 0
+def get_mouse_click_coor(x, y):
+    global MOUSE_X, MOUSE_Y
+
+    turtle.onscreenclick(None)
+    MOUSE_X, MOUSE_Y = x, y
+    return x, y
+
+def check_mouse_click(MOUSE_X, MOUSE_Y, last_mouse_x, last_mouse_y):
+    if MOUSE_X == last_mouse_x and MOUSE_Y == last_mouse_y:
+        return False
+    return True
+
+def button_press_action(button_clicked_x, button_clicked_y):
+    pressed_mine = is_mine(button_clicked_x, button_clicked_y)
+    turn()
+
+    return pressed_mine
+
+
+"""
+-----------------------------------------------------------------------------------------------------------------------
+generate board
+-----------------------------------------------------------------------------------------------------------------------
+"""
+def generate_board(x = 10, y = 10):  #it's button_array[y][x] instead of [x][y] because of how the arrays are generated
+    button_array = []
+
+    for y_cor in range(y):
+        button_array.append([])
+
+        for x_cor in range(x):
+            button_array[y_cor].append(turtle.Turtle())
+            button_array[y_cor][x_cor].shape("square")
+            button_array[y_cor][x_cor].color("black")
+            button_array[y_cor][x_cor].penup()
+            button_array[y_cor][x_cor].speed(0)
+            button_array[y_cor][x_cor].setpos(x_cor * 25, y_cor * -25)
+
+    return button_array
+
+
+"""
+-----------------------------------------------------------------------------------------------------------------------
+mines
+-----------------------------------------------------------------------------------------------------------------------
+"""
+def cell_dead_or_alive(live_cells_nearby, target_cell_x, target_cell_y):
+    if mine_location[target_cell_x][target_cell_y] == 0:
+        if live_cells_nearby == 3:
+            return 1
+        else:
+            return 0
+    else:
+        if live_cells_nearby == 2:
+            return 1
+        elif live_cells_nearby == 3:
+            return 1
+        else:
+            return 0
+
+def is_mine(x, y):
+    x, y = int(x), int(y)
+
+    if mine_location[y][x] == 1:
+        print('is mine')
+        return True
+    else:
+        return False
+
+
+"""
+-----------------------------------------------------------------------------------------------------------------------
+gameplay
+-----------------------------------------------------------------------------------------------------------------------
+"""
 #open screen
 window = turtle.Screen()
 window.bgcolor("white")

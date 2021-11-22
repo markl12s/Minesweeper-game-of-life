@@ -4,11 +4,11 @@ a turn moves ahead every time you hit a part of the board
 V 1.3.2
 last update: 11/21/2021
 
-last change: fixed bug, began refactoring
+last change: refactored
 
-other tasks: refactor
+other tasks:
 
-current task: refactor
+current task: make the board work on a arbitrary sized board
 
 current known bugs:
 """
@@ -21,6 +21,9 @@ setup
 
 import turtle
 import random
+
+board_x_size = 10
+board_y_size = 10
 
 mine_location = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                  [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -85,9 +88,9 @@ def turn():
     mine_location = mine_swap
     final_board = change_number()
 
-    for x in range(10):
+    for x in range(board_x_size):
         final_board.append([])
-        for y in range(10):
+        for y in range(board_y_size):
             if buttons_covered[y][x] == 0:
                 final_board.append(str(number_array[y][x]))
 
@@ -100,8 +103,8 @@ turn check
 -----------------------------------------------------------------------------------------------------------------------
 """
 def turn_check():
-    for x in range(10):
-        for y in range(10):
+    for x in range(board_x_size):
+        for y in range(board_y_size):
             live_cells_nearby = check_cell(x, y)
             dead_or_alive = cell_dead_or_alive(live_cells_nearby, x, y)
             mine_swap[x][y] = dead_or_alive
@@ -198,7 +201,6 @@ def top_right_corner():
 
     return sum(nearby_cells)
 
-
 def bot_right_corner():
     nearby_cells = []
 
@@ -222,8 +224,8 @@ nearby mines
 -----------------------------------------------------------------------------------------------------------------------
 """
 def nearby_mines():
-    for x in range(10):
-        for y in range(10):
+    for x in range(board_x_size):
+        for y in range(board_y_size):
             live_cells_nearby = check_cell(x, y)
             color = numbers(live_cells_nearby)
             final_board[y][x] = color
@@ -233,7 +235,7 @@ def nearby_mines():
 
     return button_array
 
-#set picture for empty spaces
+# set picture for empty spaces
 def numbers(live_cells_nearby):
     set_number = {
         0: 'white',
@@ -253,8 +255,8 @@ def numbers(live_cells_nearby):
 def change_number():
     global final_board
 
-    for y in range(10):
-        for x in range(10):
+    for y in range(board_y_size):
+        for x in range(board_x_size):
             if buttons_covered[y][x] == 0:
                 live_cells_nearby = check_cell(x, y)
                 number = numbers(live_cells_nearby)
@@ -320,17 +322,12 @@ mines
 """
 def cell_dead_or_alive(live_cells_nearby, target_cell_x, target_cell_y):
     if mine_location[target_cell_x][target_cell_y] == 0:
-        if live_cells_nearby == 3:
-            return 1
-        else:
-            return 0
+        if live_cells_nearby == 3: return 1
+        else: return 0
     else:
-        if live_cells_nearby == 2:
-            return 1
-        elif live_cells_nearby == 3:
-            return 1
-        else:
-            return 0
+        if live_cells_nearby == 2: return 1
+        elif live_cells_nearby == 3: return 1
+        else: return 0
 
 def is_mine(x, y):
     x, y = int(x), int(y)
@@ -347,14 +344,14 @@ def is_mine(x, y):
 gameplay
 -----------------------------------------------------------------------------------------------------------------------
 """
-#open screen
+# open screen
 window = turtle.Screen()
 window.bgcolor("white")
 window.title("Minesweeper Conways Game of Life")
 
-#generate board
+# generate board
 last_mouse_x, last_mouse_y = 0, 0
-button_array = generate_board()
+button_array = generate_board(board_x_size, board_y_size)
 
 while True:
     turtle.onscreenclick(get_mouse_click_coor)

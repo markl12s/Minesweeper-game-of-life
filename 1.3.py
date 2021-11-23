@@ -17,6 +17,25 @@ current known bugs:
 -----------------------------------------------------------------------------------------------------------------------
 setup
 -----------------------------------------------------------------------------------------------------------------------
+""""""
+Minesweeper but the mines follow the rules of Conways game of life
+a turn moves ahead every time you hit a part of the board
+V 1.3.2
+last update: 11/21/2021
+
+last change: refactored
+
+other tasks:
+
+current task: make the board work on a arbitrary sized board
+
+current known bugs:
+"""
+
+"""
+-----------------------------------------------------------------------------------------------------------------------
+setup
+-----------------------------------------------------------------------------------------------------------------------
 """
 
 import turtle
@@ -245,7 +264,7 @@ def numbers(live_cells_nearby):
         3: 'red',
         4: 'purple',
         5: 'brown',
-        6: 'light blue',
+        6: 'yellow',  # normally number is light blue, changed for testing due to colorblindness
         7: 'black',
         8: 'grey',
     }
@@ -376,4 +395,6 @@ while True:
                         pass
 
     last_mouse_x, last_mouse_y = MOUSE_X, MOUSE_Y
+    window.update()
+
     window.update()

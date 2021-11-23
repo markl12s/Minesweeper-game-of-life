@@ -396,5 +396,3 @@ while True:
 
     last_mouse_x, last_mouse_y = MOUSE_X, MOUSE_Y
     window.update()
-
-    window.update()

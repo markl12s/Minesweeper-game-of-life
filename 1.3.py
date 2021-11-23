@@ -17,27 +17,7 @@ current known bugs:
 -----------------------------------------------------------------------------------------------------------------------
 setup
 -----------------------------------------------------------------------------------------------------------------------
-""""""
-Minesweeper but the mines follow the rules of Conways game of life
-a turn moves ahead every time you hit a part of the board
-V 1.3.2
-last update: 11/21/2021
-
-last change: refactored
-
-other tasks:
-
-current task: make the board work on a arbitrary sized board
-
-current known bugs:
 """
-
-"""
------------------------------------------------------------------------------------------------------------------------
-setup
------------------------------------------------------------------------------------------------------------------------
-"""
-
 import turtle
 import random
 

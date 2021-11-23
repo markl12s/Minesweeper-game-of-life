@@ -2,7 +2,7 @@
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
 V 1.3.2
-last update: 11/22/2021
+last update: 11/23/2021
 
 last change: created the array generators
 

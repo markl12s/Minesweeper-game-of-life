@@ -2,13 +2,13 @@
 Minesweeper but the mines follow the rules of Conways game of life
 a turn moves ahead every time you hit a part of the board
 V 1.3.2
-last update: 11/21/2021
+last update: 11/22/2021
 
-last change: refactored
+last change: created the array generators
 
 other tasks:
 
-current task: make the board work on a arbitrary sized board
+current task: design the mine location generator
 
 current known bugs:
 """
@@ -24,6 +24,7 @@ import random
 board_x_size = 10
 board_y_size = 10
 
+# mines
 mine_location = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                  [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
@@ -35,50 +36,23 @@ mine_location = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-mine_swap = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+# other information
+mine_swap = []
+buttons_covered = []
+number_array = []
+final_board = []
 
-buttons_covered = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+for y in range(board_y_size):
+    mine_swap.append([])
+    buttons_covered.append([])
+    number_array.append([])
+    final_board.append([])
 
-number_array = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-
-final_board = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-
+    for x in range(board_x_size):
+        mine_swap[y].append(0)
+        buttons_covered[y].append(1)
+        number_array[y].append(0)
+        final_board[y].append(0)
 
 def turn():
     final_board = []
@@ -110,7 +84,7 @@ def turn_check():
 
     return mine_swap
 
-#count number nearby mines
+# count number nearby mines
 def check_cell(target_cell_x, target_cell_y):
     live_cells_nearby = 0
 
@@ -133,7 +107,7 @@ def check_cell(target_cell_x, target_cell_y):
 
     return live_cells_nearby
 
-#find mines nearby
+# find mines nearby
 def add_row(middle_x, middle_y):
     row = []
 

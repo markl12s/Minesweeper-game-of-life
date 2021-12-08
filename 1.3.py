@@ -4,13 +4,13 @@ a turn moves ahead every time you hit a part of the board
 V 1.3.2
 last update: 11/23/2021
 
-last change: created the array generators
+last change: finished an acceptable version, time to move onto another project
 
 other tasks:
 
-current task: design the mine location generator
+current task: redesign board generator
 
-current known bugs:
+current known bugs: sometimes spaces near white/0s have mines
 """
 
 """
@@ -21,10 +21,6 @@ setup
 import turtle
 import random
 
-board_x_size = 10
-board_y_size = 10
-
-# mines
 mine_location = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                  [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
@@ -36,23 +32,29 @@ mine_location = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
+board_x_size = 10
+board_y_size = 10
+
 # other information
 mine_swap = []
 buttons_covered = []
 number_array = []
 final_board = []
+mine_location = []
 
 for y in range(board_y_size):
     mine_swap.append([])
     buttons_covered.append([])
     number_array.append([])
     final_board.append([])
+    mine_location.append([])
 
     for x in range(board_x_size):
         mine_swap[y].append(0)
         buttons_covered[y].append(1)
         number_array[y].append(0)
         final_board[y].append(0)
+        mine_location[y].append(0)
 
 def turn():
     final_board = []
@@ -230,13 +232,12 @@ def change_number():
 
     for y in range(board_y_size):
         for x in range(board_x_size):
-            if buttons_covered[y][x] == 0:
+            if buttons_covered[y][x] != 0: final_board[y][x] = 0
+            else:
                 live_cells_nearby = check_cell(x, y)
                 number = numbers(live_cells_nearby)
 
                 final_board[y][x] = number
-            else:
-                final_board[y][x] = 0
 
     return final_board
 
@@ -347,6 +348,8 @@ while True:
                         button_array[y][x].color(final_board[y][x])
                     else:
                         pass
+
+            print(mine_location)
 
     last_mouse_x, last_mouse_y = MOUSE_X, MOUSE_Y
     window.update()
